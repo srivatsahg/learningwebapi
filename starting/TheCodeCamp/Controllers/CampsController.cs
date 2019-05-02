@@ -74,7 +74,7 @@ namespace TheCodeCamp.Controllers
 
         }
 
-        [Route("{moniker}")]
+        [Route("{moniker}", Name = "GetCamp")]
         public async Task<IHttpActionResult> Get(string moniker, bool includeTalks = false)
         {
             try
@@ -93,6 +93,33 @@ namespace TheCodeCamp.Controllers
 
                 return InternalServerError();
             }
+        }
+
+        [Route()]
+        public async Task<IHttpActionResult> Post(CampModel campModel)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var camp = mapper.Map<Camp>(campModel);
+
+                    campRepository.AddCamp(camp);
+
+                    if(await campRepository.SaveChangesAsync())
+                    {
+                        var newModel = mapper.Map<CampModel>(camp);
+                        return CreatedAtRoute("GetCamp", new { moniker = newModel.Moniker }, newModel);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return InternalServerError(ex);
+            }
+
+            return BadRequest();
         }
     }
 }
