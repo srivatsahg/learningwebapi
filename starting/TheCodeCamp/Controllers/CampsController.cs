@@ -22,6 +22,7 @@ namespace TheCodeCamp.Controllers
             this.mapper = mapper;
         }
 
+        [Route()]
         public async Task<IHttpActionResult> Get()
         {
             try
@@ -30,6 +31,10 @@ namespace TheCodeCamp.Controllers
                 //return BadRequest("we are learning");
                 //return Ok(new { Name = "Srivatsa", Occupation = "Developer" });
 
+                if(result == null)
+                {
+                    return NotFound();
+                }
                 //Mapping
                 var mappedResult = mapper.Map<IEnumerable<CampModel>>(result);
                 return Ok(mappedResult);
@@ -48,6 +53,12 @@ namespace TheCodeCamp.Controllers
             try
             {
                 var result = await campRepository.GetCampAsync(moniker);
+
+                if (result == null)
+                {
+                    return NotFound();
+                }
+
                 return Ok(mapper.Map<CampModel>(result));
             }
             catch (Exception)
