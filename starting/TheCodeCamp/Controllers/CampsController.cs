@@ -48,6 +48,32 @@ namespace TheCodeCamp.Controllers
 
         }
 
+
+        [Route("searchByDate/{eventDate:datetime}")]
+        [HttpGet]
+        public async Task<IHttpActionResult> SearchByEventDate(DateTime eventDate, bool includeTalks = false)
+        {
+            try
+            {
+                var result = await campRepository.GetAllCampsByEventDate(eventDate,includeTalks);
+                
+                if (result == null)
+                {
+                    return NotFound();
+                }
+
+                //Mapping
+                var mappedResult = mapper.Map<CampModel[]>(result);
+                return Ok(mappedResult);
+            }
+            catch (Exception ex)
+            {
+                //TODO:Logging
+                return InternalServerError(ex);
+            }
+
+        }
+
         [Route("{moniker}")]
         public async Task<IHttpActionResult> Get(string moniker, bool includeTalks = false)
         {
