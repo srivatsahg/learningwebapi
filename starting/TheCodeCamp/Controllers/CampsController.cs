@@ -99,7 +99,13 @@ namespace TheCodeCamp.Controllers
         public async Task<IHttpActionResult> Post(CampModel campModel)
         {
             try
-            {
+            {   
+                if(await campRepository.GetCampAsync(campModel.Moniker) != null)
+                {
+                    //if the surrogate key already exists, then flag an error
+                    ModelState.AddModelError("Moniker", "Moniker in Use");
+                }
+
                 if (ModelState.IsValid)
                 {
                     var camp = mapper.Map<Camp>(campModel);
@@ -119,7 +125,7 @@ namespace TheCodeCamp.Controllers
                 return InternalServerError(ex);
             }
 
-            return BadRequest();
+            return BadRequest(ModelState);
         }
     }
 }
