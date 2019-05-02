@@ -49,11 +49,11 @@ namespace TheCodeCamp.Controllers
         }
 
         [Route("{moniker}")]
-        public async Task<IHttpActionResult> Get(string moniker)
+        public async Task<IHttpActionResult> Get(string moniker, bool includeTalks = false)
         {
             try
             {
-                var result = await campRepository.GetCampAsync(moniker);
+                var result = await campRepository.GetCampAsync(moniker,includeTalks);
 
                 if (result == null)
                 {
