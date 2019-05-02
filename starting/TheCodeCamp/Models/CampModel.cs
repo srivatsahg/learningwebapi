@@ -13,6 +13,8 @@ namespace TheCodeCamp.Models
         public DateTime EventDate { get; set; } = DateTime.MinValue;
         public int Length { get; set; } = 1;
 
+        public ICollection<TalkModel> Talks { get; set; }
+
         //Using the location 
         public string Venue { get; set; }
 
