@@ -27,9 +27,29 @@ namespace TheCodeCamp.Controllers
         {
             try
             {
-                var results = await campRepository.GetTalksByMonikerAsync(moniker,includeSpeakers);
+                var results = await campRepository.GetTalksByMonikerAsync(moniker, includeSpeakers);
 
                 return Ok(mapper.Map<IEnumerable<TalkModel>>(results));
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [Route("{id:int}")]
+        public async Task<IHttpActionResult> Get(string moniker, int id, bool includeSpeakers = false)
+        {
+            try
+            {
+                var result = await campRepository.GetTalkByMonikerAsync(moniker,id,includeSpeakers);
+                if(result == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(mapper.Map<TalkModel>(result));
 
             }
             catch (Exception ex)
