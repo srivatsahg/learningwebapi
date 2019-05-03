@@ -88,12 +88,84 @@ namespace TheCodeCamp.Controllers
                     }
                 }
 
-                return BadRequest(ModelState);
-
+              
             }
             catch (Exception ex)
             {
 
+                return InternalServerError(ex);
+            }
+
+            return BadRequest(ModelState);
+
+        }
+
+        /// <summary>
+        /// Update Talk
+        /// </summary>
+        /// <param name="moniker"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [Route("{talkId:int}")]
+        public async Task<IHttpActionResult> Put(string moniker, 
+            int talkId, 
+            TalkModel model)
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var talk = await campRepository.GetTalkByMonikerAsync(moniker, talkId, true);
+                    if (talk == null) return NotFound(); //doesnt exists
+
+                    //ignores the speaker 
+                    mapper.Map(model, talk);
+
+                    //so update the speaker here only if the speaker is changed for some reason
+                    if(talk.Speaker.SpeakerId != model.Speaker.SpeakerId)
+                    {
+                        var speaker = await campRepository.GetSpeakerAsync(model.Speaker.SpeakerId);
+                        if (speaker != null) talk.Speaker = speaker;
+                    }
+
+                    if(await campRepository.SaveChangesAsync())
+                    {
+                        return Ok(mapper.Map<TalkModel>(talk));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return InternalServerError(ex);
+            }
+
+            return BadRequest(ModelState);
+        }
+
+
+        [Route("{talkId:int}")]
+        public async Task<IHttpActionResult> Delete(string moniker,int talkId)
+        {
+            try
+            {
+                var talk = await campRepository.GetTalkByMonikerAsync(moniker, talkId);
+                if (talk == null) return NotFound();
+
+                //DELETE the Talk
+                campRepository.DeleteTalk(talk);
+
+                if(await campRepository.SaveChangesAsync())
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return InternalServerError();
+                }
+            }
+            catch (Exception ex)
+            {
                 return InternalServerError(ex);
             }
         }
