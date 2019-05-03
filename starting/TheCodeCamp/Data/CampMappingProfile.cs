@@ -15,6 +15,12 @@ namespace TheCodeCamp.Data
             CreateMap<Camp, CampModel>()
                 .ForMember(cfg => cfg.Venue, m => m.MapFrom(ven => ven.Location.VenueName))
                 .ReverseMap();
+
+            CreateMap<Talk, TalkModel>()
+                .ReverseMap();
+
+            CreateMap<Speaker, SpeakerModel>()
+                .ReverseMap();
         }
     }
 }

@@ -38,7 +38,7 @@ namespace TheCodeCamp.Controllers
             }
         }
 
-        [Route("{id:int}")]
+        [Route("{id:int}",Name ="GetTalk")]
         public async Task<IHttpActionResult> Get(string moniker, int id, bool includeSpeakers = false)
         {
             try
@@ -54,6 +54,46 @@ namespace TheCodeCamp.Controllers
             }
             catch (Exception ex)
             {
+                return InternalServerError(ex);
+            }
+        }
+
+        [Route()]
+        public async Task<IHttpActionResult> Post(string moniker, TalkModel model) 
+        {
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    //STEP 1.   Get the camp first to assign the talk to the camp 
+                    var camp = await campRepository.GetCampAsync(moniker);
+                    if(camp != null)
+                    {
+                        //STEP 2.   Convert TalkModel to Talk
+                        var talk = mapper.Map<Talk>(model);
+                        talk.Camp = camp;
+
+                        //MAP the speaker if necessary
+                        var speaker = await campRepository.GetSpeakerAsync(model.Speaker.SpeakerId);
+                        if (speaker != null) talk.Speaker = speaker;
+
+                        //STEP 3.   Add to the repository and save changes
+                        campRepository.AddTalk(talk);
+                        if(await campRepository.SaveChangesAsync())
+                        {
+                            return CreatedAtRoute("GetTalk",
+                                new { moniker = moniker, id = talk.TalkId },
+                                mapper.Map<TalkModel>(talk));
+                        }
+                    }
+                }
+
+                return BadRequest(ModelState);
+
+            }
+            catch (Exception ex)
+            {
+
                 return InternalServerError(ex);
             }
         }
