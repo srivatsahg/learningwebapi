@@ -23,8 +23,10 @@ namespace TheCodeCamp
                 cfg.AssumeDefaultVersionWhenUnspecified = true;
                 cfg.ReportApiVersions = true;
 
-                //API versioning via Header content
-                cfg.ApiVersionReader = new HeaderApiVersionReader("X-Version");
+                //API versioning via Header content and QueryString API
+                cfg.ApiVersionReader = ApiVersionReader.Combine(
+                    new HeaderApiVersionReader("X-Version"),
+                    new QueryStringApiVersionReader("ver"));
             });
 
             config.Formatters.JsonFormatter.SerializerSettings.ContractResolver =
